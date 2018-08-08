@@ -1,4 +1,4 @@
-package com.chabanoles.graphql;
+package com.chabanoles.graphql.resolvers;
 
 import java.util.List;
 
