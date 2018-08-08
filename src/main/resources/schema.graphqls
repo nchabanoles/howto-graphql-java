@@ -4,7 +4,7 @@ type Link {
 }
 
 type Query {
-    allLinks: [link]
+    allLinks: [Link]
 }
 
 schema {
