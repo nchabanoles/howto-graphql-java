@@ -1,11 +1,14 @@
 package com.chabanoles.graphql;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.chabanoles.graphql.auth.AuthContext;
+import com.chabanoles.graphql.error.SanitizedError;
 import com.chabanoles.graphql.model.User;
 import com.chabanoles.graphql.model.resolvers.LinkResolver;
 import com.chabanoles.graphql.model.resolvers.SigninResolver;
@@ -20,6 +23,8 @@ import com.coxautodev.graphql.tools.SchemaParser;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
+import graphql.ExceptionWhileDataFetching;
+import graphql.GraphQLError;
 import graphql.schema.GraphQLSchema;
 import graphql.servlet.GraphQLContext;
 import graphql.servlet.SimpleGraphQLServlet;
@@ -53,6 +58,14 @@ public class GraphQLEndpoint extends SimpleGraphQLServlet {
                 .map(userRepository::findById)
                 .orElse(null);
         return new AuthContext(user, request, response);
+    }
+
+    @Override
+    protected List<GraphQLError> filterGraphQLErrors(List<GraphQLError> errors) {
+        return errors.stream()
+                .filter(e -> e instanceof ExceptionWhileDataFetching || super.isClientError(e))
+                .map(e -> e instanceof ExceptionWhileDataFetching ? new SanitizedError((ExceptionWhileDataFetching) e) :e)
+                .collect(Collectors.toList());
     }
 
     private static GraphQLSchema buildSchema() {
