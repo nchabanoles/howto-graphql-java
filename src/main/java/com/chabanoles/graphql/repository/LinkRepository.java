@@ -49,8 +49,7 @@ public class LinkRepository {
                 doc.get("_id").toString(),
                 doc.getString("url"),
                 doc.getString("description"),
-                doc.getString("userId")
-
+                doc.getString("postedBy")
         );
     }
 }

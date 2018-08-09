@@ -9,10 +9,13 @@ import com.chabanoles.graphql.auth.AuthContext;
 import com.chabanoles.graphql.model.User;
 import com.chabanoles.graphql.model.resolvers.LinkResolver;
 import com.chabanoles.graphql.model.resolvers.SigninResolver;
+import com.chabanoles.graphql.model.resolvers.VoteResolver;
 import com.chabanoles.graphql.repository.LinkRepository;
 import com.chabanoles.graphql.repository.UserRepository;
+import com.chabanoles.graphql.repository.VoteRepository;
 import com.chabanoles.graphql.rootresolvers.Mutation;
 import com.chabanoles.graphql.rootresolvers.Query;
+import com.chabanoles.graphql.scalar.Scalars;
 import com.coxautodev.graphql.tools.SchemaParser;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -29,11 +32,13 @@ public class GraphQLEndpoint extends SimpleGraphQLServlet {
 
     private static final LinkRepository linkRepository;
     private static final UserRepository userRepository;
+    private static final VoteRepository voteRepository;
 
     static {
         MongoDatabase mongo = new MongoClient(new MongoClientURI("mongodb://mongouser:mongopassword1@ds217002.mlab.com:17002/graphql-java")).getDatabase("graphql-java");
         linkRepository = new LinkRepository(mongo.getCollection("links"));
         userRepository = new UserRepository(mongo.getCollection("users"));
+        voteRepository = new VoteRepository(mongo.getCollection("votes"));
     }
 
     public GraphQLEndpoint() {
@@ -56,9 +61,12 @@ public class GraphQLEndpoint extends SimpleGraphQLServlet {
                 .file("schema.graphqls")
                 .resolvers(
                         new Query(linkRepository),
-                        new Mutation(linkRepository, userRepository),
+                        new Mutation(linkRepository, userRepository, voteRepository),
                         new SigninResolver(),
-                        new LinkResolver(userRepository))
+                        new LinkResolver(userRepository),
+                        new VoteResolver(linkRepository,userRepository)
+                )
+                .scalars(Scalars.dateTime)
                 .build()
                 .makeExecutableSchema();
     }
