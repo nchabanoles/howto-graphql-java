@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.chabanoles.graphql.auth.AuthContext;
 import com.chabanoles.graphql.model.User;
+import com.chabanoles.graphql.model.resolvers.LinkResolver;
 import com.chabanoles.graphql.model.resolvers.SigninResolver;
 import com.chabanoles.graphql.repository.LinkRepository;
 import com.chabanoles.graphql.repository.UserRepository;
@@ -56,7 +57,8 @@ public class GraphQLEndpoint extends SimpleGraphQLServlet {
                 .resolvers(
                         new Query(linkRepository),
                         new Mutation(linkRepository, userRepository),
-                        new SigninResolver())
+                        new SigninResolver(),
+                        new LinkResolver(userRepository))
                 .build()
                 .makeExecutableSchema();
     }

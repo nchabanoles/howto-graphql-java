@@ -1,5 +1,6 @@
 package com.chabanoles.graphql.rootresolvers;
 
+import com.chabanoles.graphql.auth.AuthContext;
 import com.chabanoles.graphql.model.Link;
 import com.chabanoles.graphql.model.SigninPayload;
 import com.chabanoles.graphql.model.User;
@@ -7,7 +8,7 @@ import com.chabanoles.graphql.model.input.AuthData;
 import com.chabanoles.graphql.repository.LinkRepository;
 import com.chabanoles.graphql.repository.UserRepository;
 import com.coxautodev.graphql.tools.GraphQLRootResolver;
-import graphql.GraphQLException;
+import graphql.schema.DataFetchingEnvironment;
 
 /**
  * Created by Nicolas Chabanoles on 08/08/18.
@@ -22,8 +23,9 @@ public class Mutation implements GraphQLRootResolver {
         this.userRepository = userRepository;
     }
 
-    public Link createLink(String url, String description) {
-        Link newLink = new Link(url, description);
+    public Link createLink(String url, String description, DataFetchingEnvironment env) {
+        AuthContext context = env.getContext();
+        Link newLink = new Link(url, description, context.getUser().getId());
         linkRepository.saveLink(newLink);
         return newLink;
     }
@@ -39,6 +41,5 @@ public class Mutation implements GraphQLRootResolver {
             throw new IllegalAccessException("Invalid credentials");
         }
         return new SigninPayload(user.getId(), user); //Instead of using the user id as token, I should generate a JWT token
-
     }
 }
