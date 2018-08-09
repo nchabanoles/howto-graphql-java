@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import com.chabanoles.graphql.model.Link;
 import com.chabanoles.graphql.model.LinkFilter;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -34,11 +35,12 @@ public class LinkRepository {
         return toLink(doc);
     }
 
-    public List<Link> getAllLinks(LinkFilter filter) {
+    public List<Link> getAllLinks(LinkFilter filter, int skip, int first) {
         Optional<Bson> mongoFilter = Optional.ofNullable(filter).map(this::buildFilter);
 
         List<Link> allLinks = new ArrayList<>();
-        for (Document doc : mongoFilter.map(links::find).orElseGet(links::find)){
+        FindIterable<Document> documents = mongoFilter.map(links::find).orElseGet(links::find);
+        for (Document doc : documents.skip(skip).limit(first)){
             allLinks.add(toLink(doc));
         }
         return allLinks;
