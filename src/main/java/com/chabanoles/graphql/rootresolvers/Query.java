@@ -3,6 +3,7 @@ package com.chabanoles.graphql.rootresolvers;
 import java.util.List;
 
 import com.chabanoles.graphql.model.Link;
+import com.chabanoles.graphql.model.LinkFilter;
 import com.chabanoles.graphql.repository.LinkRepository;
 import com.coxautodev.graphql.tools.GraphQLRootResolver;
 
@@ -17,7 +18,7 @@ public class Query implements GraphQLRootResolver {
         this.linkRepository = linkRepository;
     }
 
-    public List<Link> allLinks() {
-        return linkRepository.getAllLinks();
+    public List<Link> allLinks(LinkFilter filter) {
+        return linkRepository.getAllLinks(filter);
     }
 }
